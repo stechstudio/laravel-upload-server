@@ -80,19 +80,19 @@ class FilePondServer extends AbstractServer
 
     protected function receiveSingle($key): FileUploaded
     {
-        $result = (new FileReceiver(
+        $save = (new FileReceiver(
             $this->findFile($key),
             $this->request,
             SingleUploadHandler::class)
         )->receive();
 
-        return new FileUploaded($this->newFileId(), $result, $this->meta);
+        return new FileUploaded($this->newFileId(), $save, $this->meta);
     }
 
     public function receiveChunk(): AbstractResult
     {
         $this->updateProgress(
-            $result = (new FilePondChunkHandler(
+            $save = (new FilePondChunkHandler(
                 $this->request,
                 $this->buildFileFromChunkPayload(),
                 AbstractConfig::config()
@@ -100,25 +100,25 @@ class FilePondServer extends AbstractServer
         );
 
         // We always create this so the event is fired
-        $result = new ReceivedChunk($result->handler()->getFileId(), $result, $this->meta);
+        $result = new ReceivedChunk($save->handler()->getFileId(), $save, $this->meta);
 
         // But we will return a different result if we're finished
         return $result->isFinished()
-            ? new FileUploaded($result->handler()->getFileId(), $result, $this->meta)
+            ? new FileUploaded($result->handler()->getFileId(), $save, $this->meta)
             : $result;
     }
 
-    protected function updateProgress(ChunkSave $result)
+    protected function updateProgress(ChunkSave $save)
     {
-        if ($result->isFinished()) {
-            $this->clearProgress($result->handler()->getFileId());
+        if ($save->isFinished()) {
+            $this->clearProgress($save->handler()->getFileId());
         }
 
-        Session::put($this->sessionKey($result->handler()->getFileId()), [
-            'progress'      => $result->handler()->getPercentageDone(),
-            'currentOffset' => $result->handler()->getChunkOffset(),
-            'nextOffset'    => $result->handler()->getNextChunkOffset(),
-            'chunkPath'     => $result->getChunkFullFilePath()
+        Session::put($this->sessionKey($save->handler()->getFileId()), [
+            'progress'      => $save->handler()->getPercentageDone(),
+            'currentOffset' => $save->handler()->getChunkOffset(),
+            'nextOffset'    => $save->handler()->getNextChunkOffset(),
+            'chunkPath'     => $save->getChunkFullFilePath()
         ]);
     }
 
