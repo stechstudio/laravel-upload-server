@@ -11,7 +11,7 @@ use STS\UploadServer\UploadServerFacade;
 /**
  * See https://pqina.nl/filepond/docs/patterns/api/server/
  */
-class FilePondTest extends TestCase
+class FilePondHttpTest extends TestCase
 {
     protected $route;
 

@@ -3,13 +3,14 @@
 namespace STS\UploadServer\Results;
 
 use Illuminate\Http\UploadedFile;
+use STS\UploadServer\UploadProgress;
 use STS\UploadServer\UploadServerFacade;
 use STS\UploadServer\Events\UploadComplete;
 use STS\UploadServer\Exceptions\MoveFileFailedException;
 
 class FileUploaded extends AbstractResult
 {
-    protected $progress = 100;
+    protected $percentComplete = 100;
 
     public function announce()
     {
@@ -43,5 +44,16 @@ class FileUploaded extends AbstractResult
         return $this->handler()->isChunkedUpload()
             ? $this->handler()->getFileName()
             : $this->file()->getClientOriginalName();
+    }
+
+    public function progress(): UploadProgress
+    {
+        return UploadProgress::restore([
+            'id'           => $this->fileId,
+            'percent'      => 100,
+            'currentSize'  => $this->file()->getSize(),
+            'expectedSize' => $this->file()->getSize(),
+            'path'         => $this->file()->getRealPath()
+        ]);
     }
 }

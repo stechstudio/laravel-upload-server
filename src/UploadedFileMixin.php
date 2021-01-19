@@ -27,6 +27,14 @@ class UploadedFileMixin
         };
     }
 
+    public static function createPart()
+    {
+        return static function ($id) {
+
+            return (new static($path, basename($path), null, 0, true))->setId($id);
+        };
+    }
+
     public static function find()
     {
         return static function ($id) {

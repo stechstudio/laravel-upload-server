@@ -15,9 +15,10 @@ use STS\UploadServer\FilePondChunkHandler;
 use STS\UploadServer\Exceptions\InvalidUploadException;
 use STS\UploadServer\Results\AbstractResult;
 use STS\UploadServer\Results\RetryChunkedUpload;
-use STS\UploadServer\Results\ChunkedUploadStarting;
+use STS\UploadServer\Results\StartingChunkedUpload;
 use STS\UploadServer\Results\ReceivedChunk;
 use STS\UploadServer\Results\FileUploaded;
+use STS\UploadServer\Save\InitializedChunkFile;
 
 class FilePondServer extends AbstractServer
 {
@@ -44,38 +45,40 @@ class FilePondServer extends AbstractServer
         throw new InvalidUploadException;
     }
 
-    protected function startChunkedUpload(): ChunkedUploadStarting
+    protected function startChunkedUpload(): StartingChunkedUpload
     {
         $fileId = $this->newFileId();
+        $this->initializeChunkFile($fileId);
 
-        if ($this->disk()->exists($this->chunkPath($fileId))) {
-            $this->disk()->delete($this->chunkPath($fileId));
-        }
+        $handler = new FilePondChunkHandler($this->request, UploadedFile::findPart($fileId), AbstractConfig::config());
 
-        $this->disk()->put($this->chunkPath($fileId), '');
-
-        return new ChunkedUploadStarting(
-            $fileId,
-            $this->fullChunkPath($fileId),
-            $this->request->header('Upload-Length'),
-            $this->meta
-        );
+        return new StartingChunkedUpload($fileId, $handler->initializeChunkFile(), $this->meta);
     }
 
-    protected function retryChunkedUpload()
+    protected function retryChunkedUpload(): RetryChunkedUpload
     {
-        $upload = UploadedFile::findPart($this->request->input('patch'));
-        $status = $this->progress($this->request->input('patch'));
+        $fileId = $this->request->input('patch');
 
-        $nextExpectedOffset = Arr::get($status, 'nextOffset');
-        $chunkPath = Arr::get($status, 'chunkPath');
+        $handler = new FilePondChunkHandler($this->request, UploadedFile::findPart($fileId), AbstractConfig::config());
 
-        if (filesize($chunkPath) != $nextExpectedOffset || $chunkPath != $upload->path()) {
-            $nextExpectedOffset = 0;
-            $this->clearProgress($upload->id());
-        }
+        return new RetryChunkedUpload($fileId, $handler->retryChunk(), $this->meta);
+    }
 
-        return new RetryChunkedUpload($upload, $nextExpectedOffset, $this->meta);
+    protected function receiveChunk(): AbstractResult
+    {
+        $handler = new FilePondChunkHandler($this->request, $this->buildFileFromChunkPayload(), AbstractConfig::config());
+
+        $save = $handler
+            ->validateChunk(UploadedFile::create($handler->getFileId(), $this->fullChunkPath($handler->getFileId())))
+            ->startSaving(ChunkStorage::storage());
+
+        // We always create this so the event is fired
+        $result = new ReceivedChunk($save->handler()->getFileId(), $save, $this->meta);
+
+        // But we will return a different result if we're finished
+        return $result->isFinished()
+            ? new FileUploaded($result->handler()->getFileId(), $save, $this->meta)
+            : $result;
     }
 
     protected function receiveSingle($key): FileUploaded
@@ -89,58 +92,6 @@ class FilePondServer extends AbstractServer
         return new FileUploaded($this->newFileId(), $save, $this->meta);
     }
 
-    public function receiveChunk(): AbstractResult
-    {
-        $handler = (new FilePondChunkHandler(
-            $this->request,
-            $this->buildFileFromChunkPayload(),
-            AbstractConfig::config()
-        ));
-
-        $this->updateProgress(
-            $save = $handler
-                ->validateChunk(UploadedFile::create($handler->getFileId(), $this->fullChunkPath($handler->getFileId())))
-                ->startSaving(ChunkStorage::storage())
-        );
-
-        // We always create this so the event is fired
-        $result = new ReceivedChunk($save->handler()->getFileId(), $save, $this->meta);
-
-        // But we will return a different result if we're finished
-        return $result->isFinished()
-            ? new FileUploaded($result->handler()->getFileId(), $save, $this->meta)
-            : $result;
-    }
-
-    protected function updateProgress(ChunkSave $save)
-    {
-        if ($save->isFinished()) {
-            $this->clearProgress($save->handler()->getFileId());
-        }
-
-        Session::put($this->sessionKey($save->handler()->getFileId()), [
-            'progress'      => $save->handler()->getPercentageDone(),
-            'currentOffset' => $save->handler()->getChunkOffset(),
-            'nextOffset'    => $save->handler()->getNextChunkOffset(),
-            'chunkPath'     => $save->getChunkFullFilePath()
-        ]);
-    }
-
-    protected function progress($fileId)
-    {
-        return (array)Session::get($this->sessionKey($fileId));
-    }
-
-    protected function clearProgress($fileId)
-    {
-        return Session::pull($this->sessionKey($fileId));
-    }
-
-    protected function sessionKey($fileId)
-    {
-        return 'upload-server.' . $fileId;
-    }
-
     public function isStartingChunkedUpload(): bool
     {
         return $this->request->method() == 'POST' && $this->request->hasHeader('Upload-Length');
@@ -148,12 +99,17 @@ class FilePondServer extends AbstractServer
 
     public function isRetryingChunkedUpload(): bool
     {
-        return $this->request->method() == 'HEAD';
+        return $this->request->method() == 'HEAD'
+            && $this->request->has('patch')
+            && $this->disk()->exists($this->chunkPath($this->request->input('patch')));
     }
 
     public function isChunk(): bool
     {
-        return $this->request->method() == "PATCH" && $this->request->hasHeader('Upload-Offset');
+        return $this->request->method() == "PATCH"
+            && $this->request->hasHeader('Upload-Offset')
+            && $this->request->has('patch')
+            && $this->disk()->exists($this->chunkPath($this->request->input('patch')));
     }
 
     public function isSingleUpload(): bool

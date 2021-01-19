@@ -2,28 +2,15 @@
 
 namespace STS\UploadServer\Results;
 
-use Illuminate\Http\UploadedFile;
 use STS\UploadServer\Events\ChunkedUploadRetrying;
+use STS\UploadServer\UploadProgress;
 
 class RetryChunkedUpload extends AbstractResult
 {
-    /** @var int */
-    protected $nextOffset = 0;
-
-    public function __construct(UploadedFile $file, $nextOffset = 0, $meta = [])
-    {
-        $this->meta = $meta;
-        $this->nextOffset = $nextOffset;
-
-        $this->setFile($file);
-
-        $this->announce();
-    }
-
     public function announce()
     {
         event(new ChunkedUploadRetrying(
-            $this->file,
+            $this->file(),
             $this->meta
         ));
     }
@@ -31,6 +18,11 @@ class RetryChunkedUpload extends AbstractResult
     public function response()
     {
         return $this->textResponse('')
-            ->header('Upload-Offset', $this->nextOffset);
+            ->header('Upload-Offset', $this->file()->getSize());
+    }
+
+    public function progress(): UploadProgress
+    {
+        return $this->getProgress($this->fileId);
     }
 }

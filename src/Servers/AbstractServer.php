@@ -99,4 +99,15 @@ abstract class AbstractServer
             Arr::first($this->disk()->files($this->path($fileId)))
         );
     }
+
+    public function initializeChunkFile($fileId)
+    {
+        if ($this->disk()->exists($this->chunkPath($fileId))) {
+            $this->disk()->delete($this->chunkPath($fileId));
+        }
+
+        $this->disk()->put($this->chunkPath($fileId), '');
+
+        return $this->chunkPath($fileId);
+    }
 }

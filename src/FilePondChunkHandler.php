@@ -9,6 +9,8 @@ use Pion\Laravel\ChunkUpload\Save\ChunkSave;
 use Pion\Laravel\ChunkUpload\Storage\ChunkStorage;
 use Pion\Laravel\ChunkUpload\Handler\AbstractHandler;
 use STS\UploadServer\Exceptions\InvalidChunkException;
+use STS\UploadServer\Save\ChunkRetry;
+use STS\UploadServer\Save\InitializedChunkFile;
 
 class FilePondChunkHandler extends AbstractHandler
 {
@@ -94,6 +96,11 @@ class FilePondChunkHandler extends AbstractHandler
         return $this;
     }
 
+    public function initializeChunkFile()
+    {
+        return new InitializedChunkFile($this->file, $this, $this->config);
+    }
+
     /**
      * Creates save instance and starts saving the uploaded file.
      *
@@ -104,6 +111,11 @@ class FilePondChunkHandler extends AbstractHandler
     public function startSaving($chunkStorage)
     {
         return new ChunkSave($this->file, $this, $chunkStorage, $this->config);
+    }
+
+    public function retryChunk()
+    {
+        return new ChunkRetry($this->file, $this, $this->config);
     }
 
     /**
