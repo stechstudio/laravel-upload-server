@@ -18,8 +18,6 @@ class UploadServerServiceProvider extends ServiceProvider
             ], 'config');
 
             $this->passThroughConfig();
-
-            UploadedFile::mixin(new UploadedFileMixin());
         }
     }
 
@@ -29,6 +27,8 @@ class UploadServerServiceProvider extends ServiceProvider
     public function register()
     {
         $this->mergeConfigFrom(__DIR__.'/../config/upload-server.php', 'upload-server');
+
+        UploadedFile::mixin(new UploadedFileMixin());
     }
 
     /**
