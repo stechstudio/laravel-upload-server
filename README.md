@@ -1,6 +1,7 @@
 # Laravel Upload Server
 
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/stechstudio/laravel-upload-server.svg?style=flat-square)](https://packagist.org/packages/stechstudio/laravel-upload-server)
+![GitHub Workflow Status](https://img.shields.io/github/workflow/status/stechstudio/laravel-upload-server/Laravel?style=flat-square)
 
 A robust backend for handling file uploads, batteries included. Supports large chunked uploads. It is currently built for [FilePond](https://pqina.nl/filepond/) with planned support for [Uppy](https://uppy.io/). 
 
