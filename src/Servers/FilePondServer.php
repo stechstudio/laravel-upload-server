@@ -24,7 +24,7 @@ class FilePondServer extends AbstractServer
 {
     public function receive($key = null, $meta = []): AbstractResult
     {
-        $this->meta = $meta;
+        $this->setMeta($meta);
 
         if ($this->isStartingChunkedUpload()) {
             return $this->startChunkedUpload();

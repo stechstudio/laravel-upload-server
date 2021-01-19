@@ -6,7 +6,6 @@ use STS\UploadServer\UploadServerFacade;
 use STS\UploadServer\Events\UploadComplete;
 use STS\UploadServer\Exceptions\MoveFileFailedException;
 use STS\UploadServer\Upload;
-use Symfony\Component\HttpFoundation\Response;
 
 class FileUploaded extends AbstractResult
 {

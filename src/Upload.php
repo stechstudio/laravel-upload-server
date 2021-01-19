@@ -3,7 +3,6 @@
 namespace STS\UploadServer;
 
 use Illuminate\Http\UploadedFile;
-use STS\UploadServer\Serializers\AbstractSerializer;
 
 class Upload extends UploadedFile
 {

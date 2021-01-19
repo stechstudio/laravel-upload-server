@@ -2,9 +2,10 @@
 
 namespace STS\UploadServer\Exceptions;
 
+use RuntimeException;
 use STS\UploadServer\Results\FileUploaded;
 
-class MoveFileFailedException extends \RuntimeException
+class MoveFileFailedException extends RuntimeException
 {
     public $logLevel = "error";
 

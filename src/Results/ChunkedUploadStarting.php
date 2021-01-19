@@ -3,7 +3,6 @@
 namespace STS\UploadServer\Results;
 
 use STS\UploadServer\Events\ChunkedUploadStarted;
-use STS\UploadServer\UploadServerFacade;
 
 class ChunkedUploadStarting extends AbstractResult
 {

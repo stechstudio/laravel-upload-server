@@ -7,9 +7,7 @@ use STS\UploadServer\Upload;
 
 class RetryChunkedUpload extends AbstractResult
 {
-    /** @var Upload  */
-    protected $file;
-
+    /** @var int */
     protected $nextOffset = 0;
 
     public function __construct(Upload $file, $nextOffset = 0, $meta = [])

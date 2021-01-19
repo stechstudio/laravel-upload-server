@@ -76,11 +76,6 @@ abstract class AbstractResult implements Responsable
         return $this;
     }
 
-    public function serialize($fileId, $path): string
-    {
-        return resolve(AbstractSerializer::class)->serialize($fileId, $path);
-    }
-
     protected function textResponse($text): Response
     {
         return response($text)->header('Content-Type', 'text/plain');

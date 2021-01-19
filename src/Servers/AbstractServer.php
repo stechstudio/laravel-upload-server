@@ -2,7 +2,6 @@
 
 namespace STS\UploadServer\Servers;
 
-use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Contracts\Support\Responsable;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Route;
@@ -10,7 +9,6 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use STS\UploadServer\Results\AbstractResult;
-use STS\UploadServer\Serializers\AbstractSerializer;
 
 abstract class AbstractServer
 {
@@ -60,14 +58,9 @@ abstract class AbstractServer
 
     public function setMeta($meta = [])
     {
-        $this->meta = $meta;
+        $this->meta = array_merge($this->meta, $meta);
 
         return $this;
-    }
-
-    public function serializer(): AbstractSerializer
-    {
-        return resolve(AbstractSerializer::class);
     }
 
     protected function newFileId(): string

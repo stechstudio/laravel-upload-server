@@ -1,6 +1,6 @@
 {
     "name": "stechstudio/laravel-upload-server",
-    "description": "Laravel backend for handling FilePond uploads with large file chunking support",
+    "description": "A robust Laravel backend for handling FilePond uploads with large file chunking support",
     "keywords": [
         "stechstudio",
         "laravel",

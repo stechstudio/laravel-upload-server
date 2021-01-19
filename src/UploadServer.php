@@ -5,16 +5,17 @@ namespace STS\UploadServer;
 use Illuminate\Routing\Route;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Manager;
+use STS\UploadServer\Servers\AbstractServer;
 use STS\UploadServer\Servers\FilePondServer;
 
 class UploadServer extends Manager
 {
-    public function server($name = null)
+    public function server($name = null): AbstractServer
     {
         return $this->driver($name);
     }
 
-    public function getDefaultDriver()
+    public function getDefaultDriver(): string
     {
         return $this->config->get('upload-server.default');
     }
@@ -26,10 +27,7 @@ class UploadServer extends Manager
 
     public function retrieve($files)
     {
-        $files = array_map(
-            fn($fileId) => Upload::find($fileId),
-            Arr::wrap($files)
-        );
+        $files = array_map(fn($fileId) => Upload::find($fileId), Arr::wrap($files));
 
         return count($files) == 1 ? $files[0] : $files;
     }

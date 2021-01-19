@@ -12,7 +12,6 @@ use Pion\Laravel\ChunkUpload\Handler\AbstractHandler;
 class FilePondChunkHandler extends AbstractHandler
 {
     const CHUNK_ID_INDEX = 'patch';
-
     const HEADER_UPLOAD_LENGTH = 'Upload-Length';
     const HEADER_UPLOAD_OFFSET = 'Upload-Offset';
     const HEADER_UPLOAD_NAME = 'Upload-Name';

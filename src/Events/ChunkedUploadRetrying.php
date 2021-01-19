@@ -6,7 +6,7 @@ use STS\UploadServer\Upload;
 
 class ChunkedUploadRetrying
 {
-    /** @var Upload  */
+    /** @var Upload */
     public $file;
 
     /** @var string */
