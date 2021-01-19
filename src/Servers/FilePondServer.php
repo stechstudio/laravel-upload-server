@@ -99,7 +99,7 @@ class FilePondServer extends AbstractServer
 
         $this->updateProgress(
             $save = $handler
-                ->validateChunk(UploadedFile::findPart($handler->getFileId()))
+                ->validateChunk(UploadedFile::create($handler->getFileId(), $this->fullChunkPath($handler->getFileId())))
                 ->startSaving(ChunkStorage::storage())
         );
 
