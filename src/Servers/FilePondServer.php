@@ -86,11 +86,7 @@ class FilePondServer extends AbstractServer
             SingleUploadHandler::class)
         )->receive();
 
-        return new FileUploaded(
-            $this->newFileId(),
-            $result,
-            $this->meta
-        );
+        return new FileUploaded($this->newFileId(), $result, $this->meta);
     }
 
     public function receiveChunk(): AbstractResult
@@ -103,13 +99,13 @@ class FilePondServer extends AbstractServer
             ))->startSaving(ChunkStorage::storage())
         );
 
-        $class = $result->isFinished() ? FileUploaded::class : ReceivedChunk::class;
+        // We always create this so the event is fired
+        $result = new ReceivedChunk($result->handler()->getFileId(), $result, $this->meta);
 
-        return new $class(
-            $result->handler()->getFileId(),
-            $result,
-            $this->meta
-        );
+        // But we will return a different result if we're finished
+        return $result->isFinished()
+            ? new FileUploaded($result->handler()->getFileId(), $result, $this->meta)
+            : $result;
     }
 
     protected function updateProgress(ChunkSave $result)
