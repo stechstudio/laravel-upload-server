@@ -59,11 +59,13 @@ abstract class AbstractResult implements Responsable
         return $this->result && $this->result->isFinished();
     }
 
-    public function whenFinished(\Closure $callable)
+    public function whenFinished(\Closure $callable): AbstractResult
     {
         if ($this->isFinished()) {
             $callable($this->file(), $this);
         }
+
+        return $this;
     }
 
     public function toResponse($request)
