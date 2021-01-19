@@ -24,7 +24,8 @@ class FilePondTest extends TestCase
     public function test_it_can_upload_simple()
     {
         $response = $this->post($this->route, [
-            'file' => UploadedFile::fake()->createWithContent('Simple.txt', 'this is a simple upload')
+            'file' => UploadedFile::fake()
+                ->createWithContent('Simple.txt', 'this is a simple upload')
         ]);
 
         $upload = Upload::find($response->getContent());
@@ -36,7 +37,8 @@ class FilePondTest extends TestCase
     public function test_it_can_upload_with_unexpected_name_and_array_wrapped()
     {
         $response = $this->post($this->route, [
-            'youAintGonnaKnowThisOne[]' => UploadedFile::fake()->createWithContent('Simple.txt', 'this is a simple upload')
+            'youAintGonnaKnowThisOne[]' => UploadedFile::fake()
+                ->createWithContent('Simple.txt', 'this is a simple upload')
         ]);
 
         $upload = UploadServerFacade::retrieve($response->getContent());

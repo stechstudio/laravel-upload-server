@@ -66,7 +66,7 @@ class FilePondServer extends AbstractServer
     protected function retryChunkedUpload()
     {
         $upload = Upload::findPart($this->request->input('patch'));
-        $status = $this->getProgress($this->request->input('patch'));
+        $status = $this->progress($this->request->input('patch'));
 
         $nextExpectedOffset = Arr::get($status, 'nextOffset');
         $chunkPath = Arr::get($status, 'chunkPath');
@@ -127,7 +127,7 @@ class FilePondServer extends AbstractServer
         ]);
     }
 
-    protected function getProgress($fileId)
+    protected function progress($fileId)
     {
         return (array)Session::get($this->sessionKey($fileId));
     }
