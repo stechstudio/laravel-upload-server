@@ -25,10 +25,12 @@ UploadServer::route();
 Note that this Route can be put inside a `Route::group()`, and you can also chain additional route details. 
 
 ```php
-UploadServer::route()->middle('my-middleware');
+Route::prefix('app')->group(function () {
+    UploadServer::route()->withoutMiddleware('csrf');
+});
 ```
 
-You will now have a route setup at `/upload-server` using your default backend. Point your client-side upload integration to this endpoint.
+You will now have a route setup named `upload-server` using your default backend. Point your client-side upload integration to this endpoint.
 
 Any file uploads sent to this endpoint will be handled for you and saved at the configured path. 
 

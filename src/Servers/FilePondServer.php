@@ -203,9 +203,10 @@ class FilePondServer extends AbstractServer
         }
 
         $uri = Arr::get($options, 'uri', 'filepond-server');
+        $name = Arr::get($options, 'name', 'filepond-server');
 
         return resolve('router')
             ->match($methods, $uri, [FilePondServer::class, 'handle'])
-            ->name('filepond-server');
+            ->name($name);
     }
 }

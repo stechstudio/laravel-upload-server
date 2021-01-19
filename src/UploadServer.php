@@ -40,6 +40,7 @@ class UploadServer extends Manager
     public function route($options = []): Route
     {
         $options['uri'] = 'upload-server';
+        $options['name'] = 'upload-server';
 
         return $this->driver()->route($options);
     }
