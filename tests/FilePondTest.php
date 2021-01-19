@@ -4,6 +4,7 @@ namespace STS\UploadServer\Tests;
 
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Str;
+use STS\UploadServer\Exceptions\InvalidChunkException;
 use STS\UploadServer\Upload;
 use STS\UploadServer\UploadServerFacade;
 
@@ -107,6 +108,27 @@ class FilePondTest extends TestCase
     /**
      * @depends test_it_can_retry_chunk
      */
+    public function test_it_cannot_use_invalid_offset($payload)
+    {
+        [$fileId, $offset] = $payload;
+
+        $this->startSession();
+
+        $this->expectException(InvalidChunkException::class);
+
+        // Send a chunk
+        $response = $this->withoutExceptionHandling()->patch($this->route, ['patch' => $fileId], [
+            'Upload-Offset' => $offset - 5, // Purposefully try to overwrite part of the existing chunk
+            'Upload-Name'   => 'Chunked.txt',
+            'Upload-Length' => 19,
+            'Content-Type'  => 'applic
+            ation/offset+octet-stream'
+        ], "2nd chunk");
+    }
+
+    /**
+     * @depends test_it_can_retry_chunk
+     */
     public function test_it_can_finish_chunked($payload)
     {
         [$fileId, $offset] = $payload;
@@ -127,5 +149,4 @@ class FilePondTest extends TestCase
         $this->assertEquals(19, filesize($upload->path()));
         $this->assertEquals('Chunked.txt', $upload->getClientOriginalName());
     }
-
 }

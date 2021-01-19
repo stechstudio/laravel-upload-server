@@ -12,7 +12,7 @@ use Pion\Laravel\ChunkUpload\Receiver\FileReceiver;
 use Pion\Laravel\ChunkUpload\Save\ChunkSave;
 use Pion\Laravel\ChunkUpload\Storage\ChunkStorage;
 use STS\UploadServer\FilePondChunkHandler;
-use STS\UploadServer\Exceptions\InvalidFilePondUploadException;
+use STS\UploadServer\Exceptions\InvalidUploadException;
 use STS\UploadServer\Results\AbstractResult;
 use STS\UploadServer\Results\RetryChunkedUpload;
 use STS\UploadServer\Results\ChunkedUploadStarting;
@@ -41,7 +41,7 @@ class FilePondServer extends AbstractServer
             return $this->receiveSingle($key ?: config('upload-server.input_name'));
         }
 
-        throw new InvalidFilePondUploadException;
+        throw new InvalidUploadException;
     }
 
     protected function startChunkedUpload(): ChunkedUploadStarting
@@ -91,12 +91,16 @@ class FilePondServer extends AbstractServer
 
     public function receiveChunk(): AbstractResult
     {
+        $handler = (new FilePondChunkHandler(
+            $this->request,
+            $this->buildFileFromChunkPayload(),
+            AbstractConfig::config()
+        ));
+
         $this->updateProgress(
-            $save = (new FilePondChunkHandler(
-                $this->request,
-                $this->buildFileFromChunkPayload(),
-                AbstractConfig::config()
-            ))->startSaving(ChunkStorage::storage())
+            $save = $handler
+                ->validateChunk(UploadedFile::findPart($handler->getFileId()))
+                ->startSaving(ChunkStorage::storage())
         );
 
         // We always create this so the event is fired

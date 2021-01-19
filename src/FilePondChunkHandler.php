@@ -8,6 +8,7 @@ use Pion\Laravel\ChunkUpload\Save\AbstractSave;
 use Pion\Laravel\ChunkUpload\Save\ChunkSave;
 use Pion\Laravel\ChunkUpload\Storage\ChunkStorage;
 use Pion\Laravel\ChunkUpload\Handler\AbstractHandler;
+use STS\UploadServer\Exceptions\InvalidChunkException;
 
 class FilePondChunkHandler extends AbstractHandler
 {
@@ -74,6 +75,23 @@ class FilePondChunkHandler extends AbstractHandler
     public function getFileId()
     {
         return $this->request->input(self::CHUNK_ID_INDEX);
+    }
+
+    /**
+     * A chunk is only valid if the incoming offset matches the current size on disk.
+     *
+     * @param UploadedFile $existing
+     *
+     * @return $this
+     * @throws InvalidChunkException
+     */
+    public function validateChunk(UploadedFile $existing)
+    {
+        if($existing->getSize() != $this->getChunkOffset()) {
+            throw new InvalidChunkException();
+        }
+
+        return $this;
     }
 
     /**
