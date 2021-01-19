@@ -16,7 +16,7 @@ abstract class AbstractServer
     protected $request;
 
     /** @var array */
-    protected $meta;
+    protected $meta = [];
 
     public function __construct(Request $request)
     {

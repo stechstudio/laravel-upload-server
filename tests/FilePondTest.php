@@ -27,7 +27,7 @@ class FilePondTest extends TestCase
             'file' => UploadedFile::fake()
                 ->createWithContent('Simple.txt', 'this is a simple upload')
         ]);
-
+        
         $upload = Upload::find($response->getContent());
 
         $this->assertEquals(23, filesize($upload->path()));

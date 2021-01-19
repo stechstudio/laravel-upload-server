@@ -15,6 +15,11 @@ class TestCase extends \Orchestra\Testbench\TestCase
         ];
     }
 
+    protected function getEnvironmentSetUp($app)
+    {
+        $app['config']->set('filesystems.disks.local.root', env('RUNNER_TEMP', realpath(__DIR__.'/storage')));
+    }
+
     public function patch($uri, array $data = [], array $headers = [], $content = null)
     {
         $server = $this->transformHeadersToServerVars($headers);
