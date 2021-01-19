@@ -13,9 +13,9 @@ class FileStored extends AbstractResult
 
     public function __construct(UploadedFile $file, $fileId, AbstractSave $result, $meta = [])
     {
-        $this->file = $file;
-
         parent::__construct($fileId, $result, $meta);
+
+        $this->setFile($file);
     }
 
     public function announce()

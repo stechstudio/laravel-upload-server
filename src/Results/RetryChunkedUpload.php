@@ -12,9 +12,10 @@ class RetryChunkedUpload extends AbstractResult
 
     public function __construct(UploadedFile $file, $nextOffset = 0, $meta = [])
     {
-        $this->file = $file;
         $this->meta = $meta;
         $this->nextOffset = $nextOffset;
+
+        $this->setFile($file);
 
         $this->announce();
     }

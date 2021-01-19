@@ -31,6 +31,7 @@ abstract class AbstractResult implements Responsable
         $this->meta = $meta;
         $this->result = $result;
 
+        $this->setFile($this->result->getFile());
         $this->announce();
     }
 
@@ -39,9 +40,17 @@ abstract class AbstractResult implements Responsable
         return $this->progress;
     }
 
+    public function setFile(UploadedFile $file)
+    {
+        $file->setId($this->fileId);
+        $this->file = $file;
+
+        return $this;
+    }
+
     public function file()
     {
-        return $this->file ?: $this->result->getFile();
+        return $this->file;
     }
 
     public function handler()
