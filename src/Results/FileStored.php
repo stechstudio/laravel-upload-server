@@ -2,16 +2,16 @@
 
 namespace STS\UploadServer\Results;
 
+use Illuminate\Http\UploadedFile;
 use Pion\Laravel\ChunkUpload\Save\AbstractSave;
 use STS\UploadServer\Events\UploadStored;
-use STS\UploadServer\Upload;
 
 class FileStored extends AbstractResult
 {
     /** @var int */
     protected $progress = 100;
 
-    public function __construct(Upload $file, $fileId, AbstractSave $result, $meta = [])
+    public function __construct(UploadedFile $file, $fileId, AbstractSave $result, $meta = [])
     {
         $this->file = $file;
 

@@ -62,7 +62,7 @@ abstract class AbstractResult implements Responsable
     public function whenFinished(\Closure $callable)
     {
         if ($this->isFinished()) {
-            $callable($this);
+            $callable($this->file(), $this);
         }
     }
 

@@ -2,15 +2,15 @@
 
 namespace STS\UploadServer\Results;
 
+use Illuminate\Http\UploadedFile;
 use STS\UploadServer\Events\ChunkedUploadRetrying;
-use STS\UploadServer\Upload;
 
 class RetryChunkedUpload extends AbstractResult
 {
     /** @var int */
     protected $nextOffset = 0;
 
-    public function __construct(Upload $file, $nextOffset = 0, $meta = [])
+    public function __construct(UploadedFile $file, $nextOffset = 0, $meta = [])
     {
         $this->file = $file;
         $this->meta = $meta;

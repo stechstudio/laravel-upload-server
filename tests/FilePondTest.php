@@ -28,7 +28,7 @@ class FilePondTest extends TestCase
                 ->createWithContent('Simple.txt', 'this is a simple upload')
         ]);
 
-        $upload = Upload::find($response->getContent());
+        $upload = UploadedFile::find($response->getContent());
 
         $this->assertEquals(23, filesize($upload->path()));
         $this->assertEquals('Simple.txt', $upload->getClientOriginalName());
@@ -55,9 +55,9 @@ class FilePondTest extends TestCase
 
         $fileId = $response->getContent();
 
-        $upload = Upload::findPart($fileId);
+        $upload = UploadedFile::findPart($fileId);
 
-        $this->assertInstanceOf(Upload::class, $upload);
+        $this->assertInstanceOf(UploadedFile::class, $upload);
         $this->assertTrue(Str::isUuid($upload->id()));
         $this->assertEquals(0, filesize($upload->path()));
 
@@ -71,7 +71,7 @@ class FilePondTest extends TestCase
     {
         $this->startSession();
 
-        $upload = Upload::findPart($fileId);
+        $upload = UploadedFile::findPart($fileId);
 
         // Send a chunk
         $this->patch($this->route, ['patch' => $fileId], [
@@ -122,7 +122,7 @@ class FilePondTest extends TestCase
             ation/offset+octet-stream'
         ], "2nd chunk");
 
-        $upload = Upload::find($fileId);
+        $upload = UploadedFile::find($fileId);
 
         $this->assertEquals(19, filesize($upload->path()));
         $this->assertEquals('Chunked.txt', $upload->getClientOriginalName());

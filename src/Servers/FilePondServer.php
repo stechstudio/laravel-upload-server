@@ -13,7 +13,6 @@ use Pion\Laravel\ChunkUpload\Save\ChunkSave;
 use Pion\Laravel\ChunkUpload\Storage\ChunkStorage;
 use STS\UploadServer\FilePondChunkHandler;
 use STS\UploadServer\Exceptions\InvalidFilePondUploadException;
-use STS\UploadServer\Upload;
 use STS\UploadServer\Results\AbstractResult;
 use STS\UploadServer\Results\RetryChunkedUpload;
 use STS\UploadServer\Results\ChunkedUploadStarting;
@@ -65,7 +64,7 @@ class FilePondServer extends AbstractServer
 
     protected function retryChunkedUpload()
     {
-        $upload = Upload::findPart($this->request->input('patch'));
+        $upload = UploadedFile::findPart($this->request->input('patch'));
         $status = $this->progress($this->request->input('patch'));
 
         $nextExpectedOffset = Arr::get($status, 'nextOffset');

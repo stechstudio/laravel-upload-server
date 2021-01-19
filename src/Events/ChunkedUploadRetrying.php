@@ -2,11 +2,11 @@
 
 namespace STS\UploadServer\Events;
 
-use STS\UploadServer\Upload;
+use Illuminate\Http\UploadedFile;
 
 class ChunkedUploadRetrying
 {
-    /** @var Upload */
+    /** @var UploadedFile */
     public $file;
 
     /** @var string */
@@ -15,7 +15,7 @@ class ChunkedUploadRetrying
     /** @var array */
     public $meta;
 
-    public function __construct(Upload $file, $meta = [])
+    public function __construct(UploadedFile $file, $meta = [])
     {
         $this->file = $file;
         $this->id = $file->id();

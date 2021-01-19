@@ -2,10 +2,10 @@
 
 namespace STS\UploadServer\Results;
 
+use Illuminate\Http\UploadedFile;
 use STS\UploadServer\UploadServerFacade;
 use STS\UploadServer\Events\UploadComplete;
 use STS\UploadServer\Exceptions\MoveFileFailedException;
-use STS\UploadServer\Upload;
 
 class FileUploaded extends AbstractResult
 {
@@ -31,7 +31,7 @@ class FileUploaded extends AbstractResult
         }
 
         return new FileStored(
-            new Upload($this->fileId, UploadServerFacade::fullPath($this->fileId)),
+            UploadedFile::create($this->fileId, UploadServerFacade::fullPath($this->fileId)),
             $this->fileId,
             $this->result,
             $this->meta

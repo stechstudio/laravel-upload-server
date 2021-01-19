@@ -2,6 +2,7 @@
 
 namespace STS\UploadServer;
 
+use Illuminate\Http\UploadedFile;
 use Illuminate\Routing\Route;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Manager;
@@ -27,7 +28,7 @@ class UploadServer extends Manager
 
     public function retrieve($files)
     {
-        $files = array_map(fn($fileId) => Upload::find($fileId), Arr::wrap($files));
+        $files = array_map(fn($fileId) => UploadedFile::find($fileId), Arr::wrap($files));
 
         return count($files) == 1 ? $files[0] : $files;
     }

@@ -2,7 +2,7 @@
 
 namespace STS\UploadServer;
 
-use Illuminate\Support\Facades\Config;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\ServiceProvider;
 
 class UploadServerServiceProvider extends ServiceProvider
@@ -17,11 +17,9 @@ class UploadServerServiceProvider extends ServiceProvider
                 __DIR__.'/../config/upload-server.php' => config_path('upload-server.php'),
             ], 'config');
 
-            // Pass through some of our configs onto the chunk-upload package
-            Config::set([
-                'chunk-upload.storage.disk' => Config::get('upload-server.temporary_files_disk'),
-                'chunk-upload.storage.chunks' => Config::get('upload-server.temporary_files_path') . "/chunks"
-            ]);
+            $this->passThroughConfig();
+
+            UploadedFile::mixin(new UploadedFileMixin());
         }
     }
 
@@ -30,7 +28,17 @@ class UploadServerServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        // Automatically apply the package configuration
         $this->mergeConfigFrom(__DIR__.'/../config/upload-server.php', 'upload-server');
+    }
+
+    /**
+     * Pass through some of our configs onto the chunk-upload package
+     */
+    protected function passThroughConfig()
+    {
+        $this->app['config']->set([
+            'chunk-upload.storage.disk' => $this->app['config']->get('upload-server.temporary_files_disk'),
+            'chunk-upload.storage.chunks' => $this->app['config']->get('upload-server.temporary_files_path') . "/chunks"
+        ]);
     }
 }
