@@ -2,9 +2,11 @@
 
 namespace STS\UploadServer\Servers;
 
+use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Contracts\Support\Responsable;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Route;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use STS\UploadServer\Results\AbstractResult;
@@ -98,11 +100,10 @@ abstract class AbstractServer
         return $this->disk()->getAdapter()->applyPathPrefix($this->chunkPath($fileId));
     }
 
-    public function fullPath($fileId, $name = '')
+    public function fullPath($fileId)
     {
-        return rtrim(
-            $this->disk()->getAdapter()
-                ->applyPathPrefix($this->path($fileId) . "/" . $name),
-            '/');
+        return $this->disk()->getAdapter()->applyPathPrefix(
+            Arr::first($this->disk()->files($this->path($fileId)))
+        );
     }
 }

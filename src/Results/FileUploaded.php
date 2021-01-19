@@ -12,14 +12,6 @@ class FileUploaded extends AbstractResult
 {
     protected $progress = 100;
 
-    public function response(): Response
-    {
-        return $this->serializedResponse(
-            $this->fileId,
-            $this->file()->getRealPath()
-        );
-    }
-
     public function announce()
     {
         event(new UploadComplete(
@@ -40,11 +32,7 @@ class FileUploaded extends AbstractResult
         }
 
         return new FileStored(
-            new Upload(
-                $this->fileId,
-                UploadServerFacade::fullPath($this->fileId, $this->name()),
-                $this->name()
-            ),
+            new Upload($this->fileId, UploadServerFacade::fullPath($this->fileId)),
             $this->fileId,
             $this->result,
             $this->meta

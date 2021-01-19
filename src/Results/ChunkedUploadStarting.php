@@ -29,12 +29,4 @@ class ChunkedUploadStarting extends AbstractResult
             $this->meta
         ));
     }
-
-    public function response()
-    {
-        return $this->serializedResponse(
-            $this->fileId,
-            $this->fullPath
-        );
-    }
 }

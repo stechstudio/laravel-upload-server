@@ -10,11 +10,11 @@ class Upload extends UploadedFile
     /** @var string */
     protected $fileId;
 
-    public function __construct($fileId, $path, $name)
+    public function __construct($fileId, $path)
     {
         $this->fileId = $fileId;
 
-        parent::__construct($path, $name, null, 0, true);
+        parent::__construct($path, basename($path), null, 0, true);
     }
 
     public function id(): string
@@ -22,15 +22,13 @@ class Upload extends UploadedFile
         return $this->fileId;
     }
 
-    public static function restore($serialized): Upload
+    public static function find($fileId): Upload
     {
-        $payload = self::serializer()->unserialize($serialized);
-
-        return new static($payload['id'], $payload['path'], basename($payload['path']));
+        return new static($fileId, UploadServerFacade::fullPath($fileId));
     }
 
-    public static function serializer()
+    public static function findPart($fileId): Upload
     {
-        return resolve(AbstractSerializer::class);
+        return new static($fileId, UploadServerFacade::fullChunkPath($fileId));
     }
 }

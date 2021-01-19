@@ -17,8 +17,6 @@ class FilePondChunkHandler extends AbstractHandler
     const HEADER_UPLOAD_OFFSET = 'Upload-Offset';
     const HEADER_UPLOAD_NAME = 'Upload-Name';
 
-    protected $fileId;
-
     /**
      * Checks if the current abstract handler can be used via HandlerFactory.
      *
@@ -29,13 +27,6 @@ class FilePondChunkHandler extends AbstractHandler
     public static function canBeUsedForRequest(Request $request)
     {
         return $request->hasHeader(self::HEADER_UPLOAD_OFFSET);
-    }
-
-    public function setFileId($fileId)
-    {
-        $this->fileId = $fileId;
-
-        return $this;
     }
 
     /**
@@ -83,7 +74,7 @@ class FilePondChunkHandler extends AbstractHandler
      */
     public function getFileId()
     {
-        return $this->fileId;
+        return $this->request->input(self::CHUNK_ID_INDEX);
     }
 
     /**

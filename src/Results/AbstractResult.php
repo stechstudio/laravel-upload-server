@@ -3,6 +3,7 @@
 namespace STS\UploadServer\Results;
 
 use Illuminate\Contracts\Support\Responsable;
+use Illuminate\Http\UploadedFile;
 use Pion\Laravel\ChunkUpload\Save\AbstractSave;
 use STS\UploadServer\Serializers\AbstractSerializer;
 use Symfony\Component\HttpFoundation\Response;
@@ -11,6 +12,9 @@ abstract class AbstractResult implements Responsable
 {
     /** @var string */
     protected $fileId;
+
+    /** @var UploadedFile */
+    protected $file;
 
     /** @var array */
     protected $meta;
@@ -37,7 +41,7 @@ abstract class AbstractResult implements Responsable
 
     public function file()
     {
-        return $this->result->getFile();
+        return $this->file ?: $this->result->getFile();
     }
 
     public function handler()
@@ -82,14 +86,10 @@ abstract class AbstractResult implements Responsable
         return response($text)->header('Content-Type', 'text/plain');
     }
 
-    protected function serializedResponse($fileId, $path): Response
+    public function response()
     {
-        return $this->textResponse(
-            $this->serialize($fileId, $path)
-        );
+        return $this->textResponse($this->fileId);
     }
 
     abstract public function announce();
-
-    abstract public function response();
 }

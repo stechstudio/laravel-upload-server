@@ -11,12 +11,9 @@ class FileStored extends AbstractResult
     /** @var int */
     protected $progress = 100;
 
-    /** @var Upload */
-    protected $finalFile;
-
-    public function __construct(Upload $finalFile, $fileId, AbstractSave $result, $meta = [])
+    public function __construct(Upload $file, $fileId, AbstractSave $result, $meta = [])
     {
-        $this->finalFile = $finalFile;
+        $this->file = $file;
 
         parent::__construct($fileId, $result, $meta);
     }
@@ -24,27 +21,14 @@ class FileStored extends AbstractResult
     public function announce()
     {
         event(new UploadStored(
-            $this->finalFile,
-            $this->result->handler(),
+            $this->file,
+            $this->handler(),
             $this->meta
         ));
-    }
-
-    public function response()
-    {
-        return $this->serializedResponse(
-            $this->fileId,
-            $this->file()->getRealPath()
-        );
     }
 
     public function isFinished(): bool
     {
         return true;
-    }
-
-    public function file()
-    {
-        return $this->finalFile;
     }
 }
