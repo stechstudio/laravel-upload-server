@@ -9,6 +9,8 @@ use STS\UploadServer\Storage\PartialFile;
 
 class InitializePartial extends AbstractStep
 {
+    use PayloadHelper;
+
     public static function handles(Request $request): bool
     {
         return $request->method() == 'POST' && $request->hasHeader('Upload-Length');
@@ -22,10 +24,5 @@ class InitializePartial extends AbstractStep
     public function announce()
     {
         event(new ChunkedUploadStarted($this->file, $this->meta));
-    }
-
-    public function expectedSize()
-    {
-        return $this->request->header('Upload-Length');
     }
 }

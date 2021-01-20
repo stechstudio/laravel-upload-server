@@ -22,9 +22,6 @@ abstract class AbstractStep implements Responsable
     /** @var array */
     protected $meta;
 
-    /** @var bool */
-    protected $finished = false;
-
     public function __construct(Request $request)
     {
         $this->request = $request;
@@ -66,9 +63,11 @@ abstract class AbstractStep implements Responsable
         return response($text)->header('Content-Type', 'text/plain');
     }
 
+    abstract public function percentComplete(): int;
+
     public function isFinished(): bool
     {
-        return $this->finished;
+        return $this->percentComplete() == 100;
     }
 
     public function whenFinished(\Closure $callable): AbstractStep

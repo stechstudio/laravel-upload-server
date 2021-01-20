@@ -25,9 +25,9 @@ class ReceiveSingleUpload extends AbstractStep
         event(new UploadComplete($this->file, $this->meta));
     }
 
-    public function isFinished(): bool
+    public function percentComplete(): int
     {
-        return true;
+        return 100;
     }
 
     protected function findFile(): UploadedFile

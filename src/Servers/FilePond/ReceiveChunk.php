@@ -10,6 +10,8 @@ use STS\UploadServer\Storage\PartialFile;
 
 class ReceiveChunk extends AbstractStep
 {
+    use PayloadHelper;
+
     public static function handles(Request $request): bool
     {
         return $request->method() == "PATCH"
@@ -21,7 +23,7 @@ class ReceiveChunk extends AbstractStep
 
     public function handle()
     {
-        $this->file = PartialFile::find($this->request->input('patch'))
+        $this->file = PartialFile::find($this->patch())
             ->appendContent($this->request->getContent());
     }
 
@@ -43,35 +45,5 @@ class ReceiveChunk extends AbstractStep
             'id'       => $this->file->id(),
             'progress' => $this->percentComplete()
         ]);
-    }
-
-    public function percentComplete()
-    {
-        return ($this->chunkOffset() + $this->chunkSize()) / $this->expectedSize() * 100;
-    }
-
-    public function isFinished(): bool
-    {
-        return $this->chunkOffset() + $this->chunkSize() == $this->expectedSize();
-    }
-
-    public function chunkOffset()
-    {
-        return $this->request->header('Upload-Offset');
-    }
-
-    public function chunkSize()
-    {
-        return strlen($this->request->getContent());
-    }
-
-    public function expectedSize()
-    {
-        return $this->request->header('Upload-Length');
-    }
-
-    public function clientName()
-    {
-        return $this->request->header('Upload-Name');
     }
 }

@@ -9,6 +9,8 @@ use STS\UploadServer\Storage\PartialFile;
 
 class RetryChunk extends AbstractStep
 {
+    use PayloadHelper;
+
     public static function handles(Request $request): bool
     {
         return $request->method() == 'HEAD'
@@ -17,14 +19,19 @@ class RetryChunk extends AbstractStep
 
     public function handle()
     {
-        $this->file = PartialFile::exists($this->request->input('patch'))
-            ? PartialFile::find($this->request->input('patch'))
-            : PartialFile::initialize($this->request->input('patch'));
+        $this->file = PartialFile::exists($this->patch())
+            ? PartialFile::find($this->patch())
+            : PartialFile::initialize($this->patch());
     }
 
     public function announce()
     {
         event(new ChunkedUploadRetrying($this->file, $this->meta));
+    }
+
+    public function percentComplete(): int
+    {
+        return 0;
     }
 
     public function response()
