@@ -15,6 +15,7 @@ class ReceiveChunk extends AbstractStep
         return $request->method() == "PATCH"
             && $request->hasHeader('Upload-Offset')
             && $request->has('patch')
+            && PartialFile::exists($request->input('patch'))
             && PartialFile::find($request->input('patch'))->getSize() == $request->header('Upload-Offset');
     }
 
