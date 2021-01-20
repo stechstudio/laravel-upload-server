@@ -47,7 +47,7 @@ public function handleFormSubmission(Request $request)
 }
 ```
 
-You will receive back an array of `UploadedFile` objects if there were multiple files submitted, otherwise you will have a single `UploadedFile` instance.
+You will receive back an array of `File` objects if there were multiple files submitted, otherwise you will have a single `File` instance.
 
 ### 3. Wrap up
 

@@ -82,7 +82,7 @@ class FilePondChunkHandler extends AbstractHandler
     /**
      * A chunk is only valid if the incoming offset matches the current size on disk.
      *
-     * @param UploadedFile $existing
+     * @param File $existing
      *
      * @return $this
      * @throws InvalidChunkException
