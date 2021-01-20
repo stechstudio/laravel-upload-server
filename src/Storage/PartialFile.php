@@ -18,12 +18,15 @@ class PartialFile extends File
         fclose($source);
         fclose($destination);
 
+        clearstatcache(true, $this->getRealPath());
+
         return $this;
     }
 
     public function appendContent($content)
     {
         file_put_contents($this->getRealPath(), $content, FILE_APPEND);
+        clearstatcache(true, $this->getRealPath());
 
         return $this;
     }
