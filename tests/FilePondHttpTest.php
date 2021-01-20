@@ -136,5 +136,17 @@ class FilePondHttpTest extends TestCase
 
         $this->assertEquals(19, filesize($upload->path()));
         $this->assertEquals('Chunked.txt', $upload->getClientOriginalName());
+
+        return $fileId;
+    }
+
+    /**
+     * @depends test_it_can_finish_chunked
+     */
+    public function test_it_can_delete_uploaded_file($fileId)
+    {
+        $response = $this->delete($this->route, ['patch' => $fileId]);
+
+        $this->assertFalse(File::exists($fileId));
     }
 }

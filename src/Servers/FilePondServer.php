@@ -4,6 +4,7 @@ namespace STS\UploadServer\Servers;
 
 use Illuminate\Routing\Route;
 use Illuminate\Support\Arr;
+use STS\UploadServer\Servers\FilePond\DeleteFile;
 use STS\UploadServer\Servers\FilePond\InitializePartial;
 use STS\UploadServer\Servers\FilePond\ReceiveChunk;
 use STS\UploadServer\Servers\FilePond\ReceiveSingleUpload;
@@ -15,19 +16,16 @@ class FilePondServer extends AbstractServer
         InitializePartial::class,
         RetryChunk::class,
         ReceiveChunk::class,
-        ReceiveSingleUpload::class
+        ReceiveSingleUpload::class,
+        DeleteFile::class
     ];
 
     public static function route($options = []): Route
     {
-        $methods = ['PATCH'];
-
-        if (Arr::get($options, 'allowDelete', true)) {
-            $methods[] = 'DELETE';
-        }
+        $methods = ['POST', 'DELETE'];
 
         if (Arr::get($options, 'supportChunking', true)) {
-            array_push($methods, 'POST', 'HEAD', 'PATCH');
+            array_push($methods, 'HEAD', 'PATCH');
         }
 
         $uri = Arr::get($options, 'uri', 'filepond-server');
