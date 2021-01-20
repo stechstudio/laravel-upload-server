@@ -2,22 +2,19 @@
 
 namespace STS\UploadServer\Tests;
 
-use Pion\Laravel\ChunkUpload\Providers\ChunkUploadServiceProvider;
-
 class TestCase extends \Orchestra\Testbench\TestCase
 {
 
     protected function getPackageProviders($app)
     {
         return [
-            ChunkUploadServiceProvider::class,
             TestServiceProvider::class
         ];
     }
 
     protected function getEnvironmentSetUp($app)
     {
-        $app['config']->set('filesystems.disks.local.root', env('RUNNER_TEMP', realpath(__DIR__.'/storage')));
+        $app['config']->set('filesystems.disks.local.root', env('RUNNER_TEMP', storage_path('app')));
     }
 
     public function patch($uri, array $data = [], array $headers = [], $content = null)

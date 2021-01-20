@@ -11,6 +11,7 @@ use Pion\Laravel\ChunkUpload\Handler\AbstractHandler;
 use STS\UploadServer\Exceptions\InvalidChunkException;
 use STS\UploadServer\Save\ChunkRetry;
 use STS\UploadServer\Save\InitializedChunkFile;
+use STS\UploadServer\Storage\File;
 
 class FilePondChunkHandler extends AbstractHandler
 {

@@ -3,13 +3,14 @@
 namespace STS\UploadServer\Tests;
 
 use Illuminate\Support\Str;
-use STS\UploadServer\File;
+use STS\UploadServer\Storage\File;
+use STS\UploadServer\Storage\PartialFile;
 
 class FileTest extends TestCase
 {
     public function test_it_can_initialize_empty_partial()
     {
-        $file = File::initializePartial(Str::uuid());
+        $file = PartialFile::initialize();
 
         $this->assertFileExists($file->getRealPath());
         $this->assertEquals(0, $file->getSize());
@@ -17,9 +18,9 @@ class FileTest extends TestCase
 
     public function test_it_can_find_partial_file()
     {
-        file_put_contents(File::fullPartialPath($id = Str::uuid()), "I don't mean to pry");
+        file_put_contents(PartialFile::fullPathFor($id = Str::uuid()), "I don't mean to pry");
 
-        $file = File::findPartial($id);
+        $file = PartialFile::find($id);
 
         $this->assertFileExists($file->getRealPath());
         $this->assertEquals(19, $file->getSize());
@@ -38,9 +39,9 @@ class FileTest extends TestCase
 
     public function test_it_can_append_from_stream()
     {
-        file_put_contents(File::fullPartialPath($id = Str::uuid()), "We need a miracle. ");
+        file_put_contents(PartialFile::fullPathFor($id = Str::uuid()), "We need a miracle. ");
 
-        $file = File::findPartial($id);
+        $file = PartialFile::find($id);
 
         $path = sys_get_temp_dir() . "/" . md5(time()) . ".txt";
         file_put_contents($path, "It's very important.");
@@ -54,9 +55,9 @@ class FileTest extends TestCase
 
     public function test_it_can_append_content()
     {
-        file_put_contents(File::fullPartialPath($id = Str::uuid()), "No. ");
+        file_put_contents(PartialFile::fullPathFor($id = Str::uuid()), "No. ");
 
-        $file = File::findPartial($id);
+        $file = PartialFile::find($id);
 
         $file->appendContent('To the pain.');
 

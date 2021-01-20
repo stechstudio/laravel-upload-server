@@ -4,9 +4,10 @@ namespace STS\UploadServer\Tests;
 
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Str;
-use STS\UploadServer\Exceptions\InvalidChunkException;
+use STS\UploadServer\Exceptions\InvalidUploadException;
+use STS\UploadServer\Storage\File;
+use STS\UploadServer\Storage\PartialFile;
 use STS\UploadServer\Upload;
-use STS\UploadServer\UploadServerFacade;
 
 /**
  * See https://pqina.nl/filepond/docs/patterns/api/server/
@@ -29,7 +30,7 @@ class FilePondHttpTest extends TestCase
                 ->createWithContent('Simple.txt', 'this is a simple upload')
         ]);
 
-        $upload = UploadedFile::find($response->getContent());
+        $upload = File::find($response->getContent());
 
         $this->assertEquals(23, filesize($upload->path()));
         $this->assertEquals('Simple.txt', $upload->getClientOriginalName());
@@ -42,7 +43,7 @@ class FilePondHttpTest extends TestCase
                 ->createWithContent('Simple.txt', 'this is a simple upload')
         ]);
 
-        $upload = UploadServerFacade::retrieve($response->getContent());
+        $upload = File::find($response->getContent());
 
         $this->assertEquals(23, filesize($upload->path()));
         $this->assertEquals('Simple.txt', $upload->getClientOriginalName());
@@ -56,7 +57,7 @@ class FilePondHttpTest extends TestCase
 
         $fileId = $response->getContent();
 
-        $upload = UploadedFile::findPart($fileId);
+        $upload = PartialFile::find($fileId);
 
         $this->assertInstanceOf(UploadedFile::class, $upload);
         $this->assertTrue(Str::isUuid($upload->id()));
@@ -70,34 +71,26 @@ class FilePondHttpTest extends TestCase
      */
     public function test_it_can_upload_chunk($fileId)
     {
-        $this->startSession();
-
-        $upload = UploadedFile::findPart($fileId);
+        $upload = PartialFile::find($fileId);
 
         // Send a chunk
-        $this->patch($this->route, ['patch' => $fileId], [
+        $response = $this->patch($this->route, ['patch' => $fileId], [
             'Upload-Offset' => 0,
             'Upload-Name'   => 'Chunked.txt',
             'Upload-Length' => 19,
             'Content-Type'  => 'application/offset+octet-stream'
         ], "1st chunk-");
 
-        $this->assertEquals(10, filesize($upload->path()));
+        $this->assertEquals("1st chunk-", $upload->get());
 
-        return [$fileId, $this->app['session']->get('upload-server')];
+        return $fileId;
     }
 
     /**
      * @depends test_it_can_upload_chunk
      */
-    public function test_it_can_retry_chunk($payload)
+    public function test_it_can_retry_chunk($fileId)
     {
-        [$fileId, $session] = $payload;
-
-        $this->startSession();
-
-        $this->app['session']->put('upload-server', $session);
-
         $response = $this->call('HEAD', $this->route, ['patch' => $fileId]);
 
         $response->assertHeader('Upload-Offset', 10);
@@ -112,9 +105,7 @@ class FilePondHttpTest extends TestCase
     {
         [$fileId, $offset] = $payload;
 
-        $this->startSession();
-
-        $this->expectException(InvalidChunkException::class);
+        $this->expectException(InvalidUploadException::class);
 
         // Send a chunk
         $response = $this->withoutExceptionHandling()->patch($this->route, ['patch' => $fileId], [
@@ -133,18 +124,15 @@ class FilePondHttpTest extends TestCase
     {
         [$fileId, $offset] = $payload;
 
-        $this->startSession();
-
         // Send a chunk
         $response = $this->patch($this->route, ['patch' => $fileId], [
             'Upload-Offset' => $offset,
             'Upload-Name'   => 'Chunked.txt',
             'Upload-Length' => 19,
-            'Content-Type'  => 'applic
-            ation/offset+octet-stream'
+            'Content-Type'  => 'application/offset+octet-stream'
         ], "2nd chunk");
 
-        $upload = UploadedFile::find($fileId);
+        $upload = File::find($fileId);
 
         $this->assertEquals(19, filesize($upload->path()));
         $this->assertEquals('Chunked.txt', $upload->getClientOriginalName());
