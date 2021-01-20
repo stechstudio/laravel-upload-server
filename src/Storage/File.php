@@ -33,6 +33,11 @@ class File extends UploadedFile
         return $this->id;
     }
 
+    public static function exists($id): bool
+    {
+        return count(static::disk()->files(static::basePath($id))) == 1;
+    }
+
     public static function find($id): File
     {
         return new static($id,

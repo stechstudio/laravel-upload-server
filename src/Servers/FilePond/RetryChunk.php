@@ -12,13 +12,14 @@ class RetryChunk extends AbstractStep
     public static function handles(Request $request): bool
     {
         return $request->method() == 'HEAD'
-            && $request->has('patch')
-            && PartialFile::find($request->input('patch'));
+            && $request->has('patch');
     }
 
     public function handle()
     {
-        $this->file = PartialFile::find($this->request->input('patch'));
+        $this->file = PartialFile::exists($this->request->input('patch'))
+            ? PartialFile::find($this->request->input('patch'))
+            : PartialFile::initialize($this->request->input('patch'));
     }
 
     public function announce()

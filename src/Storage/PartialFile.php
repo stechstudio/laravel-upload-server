@@ -37,14 +37,20 @@ class PartialFile extends File
         return new File($this->id(), $destination);
     }
 
+    public static function exists($id): bool
+    {
+        return static::disk()->exists(static::relativePathFor($id));
+    }
+
     public static function find($id): PartialFile
     {
         return new static($id, static::relativePathFor($id));
     }
 
-    public static function initialize(): PartialFile
+    public static function initialize($id = null): PartialFile
     {
-        $path = static::relativePathFor($id = static::newId());
+        $id = $id ?: static::newId();
+        $path = static::relativePathFor($id);
 
         if (static::disk()->exists($path)) {
             static::disk()->delete($path);
