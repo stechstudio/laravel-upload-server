@@ -2,12 +2,12 @@
 
 namespace STS\UploadServer;
 
-use Illuminate\Http\UploadedFile;
 use Illuminate\Routing\Route;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Manager;
 use STS\UploadServer\Servers\AbstractServer;
 use STS\UploadServer\Servers\FilePondServer;
+use STS\UploadServer\Storage\File;
 
 class UploadServer extends Manager
 {
@@ -23,12 +23,12 @@ class UploadServer extends Manager
 
     public function createFilepondDriver(): FilePondServer
     {
-        return resolve(FilePondServer::class);
+        return app(FilePondServer::class);
     }
 
     public function retrieve($files)
     {
-        $files = array_map(fn($fileId) => UploadedFile::find($fileId), Arr::wrap($files));
+        $files = array_map(fn($fileId) => File::find($fileId), Arr::wrap($files));
 
         return count($files) == 1 ? $files[0] : $files;
     }

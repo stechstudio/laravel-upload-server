@@ -27,7 +27,7 @@ abstract class AbstractServer
     {
         $this->setMeta($meta);
 
-        return resolve($this->findStep())->run($this);
+        return app($this->findStep())->run($this);
     }
 
     public function findStep(): string
