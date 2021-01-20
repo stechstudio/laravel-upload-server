@@ -18,13 +18,16 @@ class ReceiveSingleUpload extends AbstractStep
     public function handle()
     {
         $this->file = File::storeUploadedFile($this->findFile());
-
-        $this->finished = true;
     }
 
     public function announce()
     {
         event(new UploadComplete($this->file, $this->meta));
+    }
+
+    public function isFinished(): bool
+    {
+        return true;
     }
 
     protected function findFile(): UploadedFile
