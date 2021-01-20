@@ -1,10 +1,11 @@
 <?php
 
-namespace STS\UploadServer\Steps;
+namespace STS\UploadServer\Servers\FilePond;
 
 use Illuminate\Http\Request;
 use STS\UploadServer\Events\ChunkReceived;
 use STS\UploadServer\Events\UploadComplete;
+use STS\UploadServer\Servers\AbstractStep;
 use STS\UploadServer\Storage\PartialFile;
 
 class ReceiveChunk extends AbstractStep
@@ -21,18 +22,18 @@ class ReceiveChunk extends AbstractStep
     {
         $this->file = PartialFile::find($this->request->input('patch'))
             ->appendContent($this->request->getContent());
+    }
 
+    public function announce()
+    {
         event(new ChunkReceived($this->file, $this->meta));
+    }
 
-        if(!$this->isLastChunk()) {
-            return;
-        }
-
+    public function finalize()
+    {
         $this->file = $this->file->save($this->clientName());
 
         event(new UploadComplete($this->file, $this->meta));
-
-        $this->finished = true;
     }
 
     public function response()
@@ -46,6 +47,11 @@ class ReceiveChunk extends AbstractStep
     public function percentComplete()
     {
         return ($this->chunkOffset() + $this->chunkSize()) / $this->expectedSize() * 100;
+    }
+
+    public function isFinished(): bool
+    {
+        return $this->chunkOffset() + $this->chunkSize() == $this->expectedSize();
     }
 
     public function chunkOffset()
@@ -63,17 +69,8 @@ class ReceiveChunk extends AbstractStep
         return $this->request->header('Upload-Length');
     }
 
-    public function isLastChunk()
-    {
-        return $this->chunkOffset() + $this->chunkSize() == $this->expectedSize();
-    }
-
     public function clientName()
     {
         return $this->request->header('Upload-Name');
-    }
-
-    public function announce()
-    {
     }
 }

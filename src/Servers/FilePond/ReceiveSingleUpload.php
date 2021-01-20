@@ -1,10 +1,11 @@
 <?php
 
-namespace STS\UploadServer\Steps;
+namespace STS\UploadServer\Servers\FilePond;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
 use STS\UploadServer\Events\UploadComplete;
+use STS\UploadServer\Servers\AbstractStep;
 use STS\UploadServer\Storage\File;
 
 class ReceiveSingleUpload extends AbstractStep

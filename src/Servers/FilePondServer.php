@@ -4,10 +4,10 @@ namespace STS\UploadServer\Servers;
 
 use Illuminate\Routing\Route;
 use Illuminate\Support\Arr;
-use STS\UploadServer\Steps\InitializePartial;
-use STS\UploadServer\Steps\ReceiveChunk;
-use STS\UploadServer\Steps\ReceiveSingleUpload;
-use STS\UploadServer\Steps\RetryChunk;
+use STS\UploadServer\Servers\FilePond\InitializePartial;
+use STS\UploadServer\Servers\FilePond\ReceiveChunk;
+use STS\UploadServer\Servers\FilePond\ReceiveSingleUpload;
+use STS\UploadServer\Servers\FilePond\RetryChunk;
 
 class FilePondServer extends AbstractServer
 {

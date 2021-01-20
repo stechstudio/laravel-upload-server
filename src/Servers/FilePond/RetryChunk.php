@@ -1,9 +1,10 @@
 <?php
 
-namespace STS\UploadServer\Steps;
+namespace STS\UploadServer\Servers\FilePond;
 
 use Illuminate\Http\Request;
 use STS\UploadServer\Events\ChunkedUploadRetrying;
+use STS\UploadServer\Servers\AbstractStep;
 use STS\UploadServer\Storage\PartialFile;
 
 class RetryChunk extends AbstractStep

@@ -1,6 +1,6 @@
 <?php
 
-namespace STS\UploadServer\Steps;
+namespace STS\UploadServer\Servers;
 
 use Illuminate\Contracts\Support\Responsable;
 use Illuminate\Http\Request;
@@ -38,6 +38,10 @@ abstract class AbstractStep implements Responsable
         $this->handle();
         $this->announce();
 
+        if($this->isFinished()) {
+            $this->finalize();
+        }
+
         return $this;
     }
 
@@ -74,6 +78,10 @@ abstract class AbstractStep implements Responsable
         }
 
         return $this;
+    }
+
+    public function finalize()
+    {
     }
 
     public function file(): File
