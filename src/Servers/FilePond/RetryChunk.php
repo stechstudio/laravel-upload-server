@@ -12,6 +12,8 @@ class RetryChunk extends AbstractStep
 {
     use PayloadHelper;
 
+    protected $event = ChunkedUploadRetrying::class;
+
     public static function handles(Request $request): bool
     {
         return $request->method() == 'HEAD'

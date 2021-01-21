@@ -12,6 +12,8 @@ class ReceiveChunk extends AbstractStep
 {
     use PayloadHelper;
 
+    protected $event = ChunkReceived::class;
+
     public static function handles(Request $request): bool
     {
         return $request->method() == "PATCH"
@@ -27,16 +29,11 @@ class ReceiveChunk extends AbstractStep
             ->appendContent($this->request->getContent());
     }
 
-    public function announce()
-    {
-        event(new ChunkReceived($this->file, $this->meta));
-    }
-
     public function finalize()
     {
         $this->file = $this->file->save($this->clientName());
 
-        event(new UploadComplete($this->file, $this->meta));
+        event(new UploadComplete($this->file, $this, $this->meta));
     }
 
     public function response()

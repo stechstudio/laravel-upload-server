@@ -22,12 +22,15 @@ abstract class AbstractStep implements Responsable
     /** @var array */
     protected $meta;
 
+    /** @var string */
+    protected $event;
+
     public function __construct(Request $request)
     {
         $this->request = $request;
     }
 
-    public function run(AbstractServer $server)
+    public function run(AbstractServer $server): Responsable
     {
         $this->server = $server;
         $this->meta = $server->meta();
@@ -46,11 +49,22 @@ abstract class AbstractStep implements Responsable
 
     abstract public function handle();
 
-    abstract public function announce();
+    abstract public function percentComplete(): int;
 
-    public function toResponse($request)
+    public function isFinished(): bool
     {
-        return $this->response();
+        return $this->percentComplete() == 100;
+    }
+
+    public function finalize()
+    {
+    }
+
+    public function announce()
+    {
+        $class = $this->event;
+
+        event(new $class($this->file, $this, $this->meta));
     }
 
     public function response()
@@ -63,13 +77,6 @@ abstract class AbstractStep implements Responsable
         return response($text)->header('Content-Type', 'text/plain');
     }
 
-    abstract public function percentComplete(): int;
-
-    public function isFinished(): bool
-    {
-        return $this->percentComplete() == 100;
-    }
-
     public function whenFinished(\Closure $callable): AbstractStep
     {
         if ($this->isFinished()) {
@@ -79,8 +86,19 @@ abstract class AbstractStep implements Responsable
         return $this;
     }
 
-    public function finalize()
+    public function toResponse($request)
     {
+        return $this->response();
+    }
+
+    public function server(): AbstractServer
+    {
+        return $this->server;
+    }
+
+    public function request(): Request
+    {
+        return $this->request;
     }
 
     public function file(): File

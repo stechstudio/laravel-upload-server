@@ -11,6 +11,8 @@ class InitializePartial extends AbstractStep
 {
     use PayloadHelper;
 
+    protected $event = ChunkedUploadStarted::class;
+
     public static function handles(Request $request): bool
     {
         return $request->method() == 'POST' && $request->hasHeader('Upload-Length');
@@ -19,10 +21,5 @@ class InitializePartial extends AbstractStep
     public function handle()
     {
         $this->file = PartialFile::initialize();
-    }
-
-    public function announce()
-    {
-        event(new ChunkedUploadStarted($this->file, $this->meta));
     }
 }

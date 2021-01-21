@@ -13,6 +13,8 @@ class DeleteFile extends AbstractStep
 {
     use PayloadHelper;
 
+    protected $event = UploadRemoved::class;
+
     public static function handles(Request $request): bool
     {
         return $request->method() == 'DELETE'
@@ -25,11 +27,6 @@ class DeleteFile extends AbstractStep
         $this->file = File::find($this->patch());
 
         unlink($this->file->getRealPath());
-    }
-
-    public function announce()
-    {
-        event(new UploadRemoved($this->file, $this->meta));
     }
 
     public function percentComplete(): int

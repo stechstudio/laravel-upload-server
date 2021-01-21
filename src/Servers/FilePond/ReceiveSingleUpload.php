@@ -10,6 +10,8 @@ use STS\UploadServer\Storage\File;
 
 class ReceiveSingleUpload extends AbstractStep
 {
+    protected $event = UploadComplete::class;
+
     public static function handles(Request $request): bool
     {
         return count($request->allFiles()) > 0;
@@ -18,11 +20,6 @@ class ReceiveSingleUpload extends AbstractStep
     public function handle()
     {
         $this->file = File::storeUploadedFile($this->findFile());
-    }
-
-    public function announce()
-    {
-        event(new UploadComplete($this->file, $this->meta));
     }
 
     public function percentComplete(): int
