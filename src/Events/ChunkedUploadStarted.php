@@ -2,17 +2,6 @@
 
 namespace STS\UploadServer\Events;
 
-class ChunkedUploadStarted
+class ChunkedUploadStarted extends AbstractEvent
 {
-    /** @var string */
-    public $id;
-
-    /** @var array */
-    public $meta;
-
-    public function __construct($id, $meta = [])
-    {
-        $this->id = $id;
-        $this->meta = $meta;
-    }
 }
