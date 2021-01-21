@@ -71,7 +71,7 @@ class PartialFile extends File
 
     public static function relativePathFor($fileId): string
     {
-        return static::basePath() . "/partials/" . static::fileName($fileId);
+        return config('upload-server.partials_path') . "/" . static::fileName($fileId);
     }
 
     public static function fullPathFor($fileId): string

@@ -1,10 +1,11 @@
 <?php
 
 return [
-    'temporary_files_path' => env('UPLOAD_TEMP_PATH', 'uploads'),
-    'temporary_files_disk' => env('UPLOAD_TEMP_DISK', 'local'),
+    'disk'          => env('UPLOAD_SERVER_DISK', 'local'),
+    'path'          => env('UPLOAD_SERVER_PATH', 'uploads'),
+    'partials_path' => env('UPLOAD_SERVER_PARTIALS_PATH', 'uploads/partials'),
 
-    'default' => 'filepond',
+    'default'  => 'filepond',
 
     // Server-specific config
     'filepond' => [

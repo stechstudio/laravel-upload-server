@@ -63,7 +63,7 @@ class File extends UploadedFile
 
     public static function diskName(): string
     {
-        return config('upload-server.temporary_files_disk');
+        return config('upload-server.disk');
     }
 
     public static function disk(): Filesystem
@@ -73,7 +73,7 @@ class File extends UploadedFile
 
     public static function basePath($fileId = null): string
     {
-        return rtrim(config('upload-server.temporary_files_path') . "/" . $fileId, '/');
+        return rtrim(config('upload-server.path') . "/" . $fileId, '/');
     }
 
     public static function relativeToFullPath($relativePath): string
