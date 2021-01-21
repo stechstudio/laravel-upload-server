@@ -45,11 +45,6 @@ class RetryChunk extends AbstractStep
         $this->file = PartialFile::initialize($this->patch());
     }
 
-    public function announce()
-    {
-        event(new ChunkedUploadRetrying($this->file, $this->meta));
-    }
-
     public function percentComplete(): int
     {
         return 0;
