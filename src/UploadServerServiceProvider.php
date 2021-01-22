@@ -5,6 +5,7 @@ namespace STS\UploadServer;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
+use STS\UploadServer\Console\CleanupCommand;
 use STS\UploadServer\Events\AbstractEvent;
 use STS\UploadServer\Events\ChunkedUploadRetrying;
 use STS\UploadServer\Events\ChunkedUploadStarted;
@@ -44,6 +45,10 @@ class UploadServerServiceProvider extends ServiceProvider
     public function register()
     {
         $this->mergeConfigFrom(__DIR__ . '/../config/upload-server.php', 'upload-server');
+
+        $this->commands([
+            CleanupCommand::class
+        ]);
     }
 
     protected function logEvents($level)

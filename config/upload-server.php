@@ -8,6 +8,8 @@ return [
     'log'       => env('UPLOAD_SERVER_LOG', true),
     'log_level' => env('UPLOAD_SERVER_LOG_LEVEL', 'debug'),
 
+    'cleanup_interval' => env('UPLOAD_SERVER_CLEANUP', '12 hours'),
+
     'default'  => 'filepond',
 
     // Server-specific config
