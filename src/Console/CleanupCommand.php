@@ -19,8 +19,7 @@ class CleanupCommand extends Command
         PartialFile::all()
             ->filter(fn(PartialFile $file) => $file->getMTime() < $this->timestamp())
             ->each(fn(PartialFile $file) => $this->remove($file))
-            ->whenNotEmpty(fn($result) => $this->info($this->resultMessage($result->count())))
-            ->whenEmpty(fn() => $this->info('No abandoned partial uploads found'));
+            ->tap(fn($result) => $this->info($this->resultMessage($result->count())));
     }
 
     protected function remove(PartialFile $file)
@@ -43,6 +42,8 @@ class CleanupCommand extends Command
 
     protected function resultMessage($count)
     {
-        return "Cleaned up $count abandoned partial " . Str::plural('upload', $count);
+        return $count == 0
+            ? "No abandoned partial uploads found"
+            : "Cleaned up $count abandoned partial " . Str::plural('upload', $count);
     }
 }
