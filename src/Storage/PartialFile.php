@@ -3,10 +3,11 @@
 namespace STS\UploadServer\Storage;
 
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Collection;
 
 class PartialFile extends File
 {
-    public function appendFile(UploadedFile $file)
+    public function appendFile(UploadedFile $file): PartialFile
     {
         $destination = fopen($this->getRealPath(), 'ab');
         $source = fopen($file->getRealPath(), 'rb');
@@ -23,7 +24,7 @@ class PartialFile extends File
         return $this;
     }
 
-    public function appendContent($content)
+    public function appendContent($content): PartialFile
     {
         file_put_contents($this->getRealPath(), $content, FILE_APPEND);
         clearstatcache(true, $this->getRealPath());
@@ -31,11 +32,11 @@ class PartialFile extends File
         return $this;
     }
 
-    public function save($name)
+    public function save($name): File
     {
-        $destination = $this->basePath($this->id()) . "/" . $name;
+        $destination = parent::basePath() . "/" . $this->id() . "/" . $name;
 
-        $this->disk()->move($this->path, $destination);
+        $this->disk()->move($this->relativePath, $destination);
 
         return new File($this->id(), $destination);
     }
@@ -48,6 +49,11 @@ class PartialFile extends File
     public static function find($id): PartialFile
     {
         return new static($id, static::relativePathFor($id));
+    }
+
+    public static function fromPath($path): PartialFile
+    {
+        return new static(pathinfo($path, PATHINFO_FILENAME), $path);
     }
 
     public static function initialize($id = null): PartialFile
@@ -69,9 +75,14 @@ class PartialFile extends File
         return $fileId . ".part";
     }
 
+    public static function basePath(): string
+    {
+        return config('upload-server.partials_path');
+    }
+
     public static function relativePathFor($fileId): string
     {
-        return config('upload-server.partials_path') . "/" . static::fileName($fileId);
+        return static::basePath() . "/" . static::fileName($fileId);
     }
 
     public static function fullPathFor($fileId): string

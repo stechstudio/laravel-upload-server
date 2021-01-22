@@ -5,47 +5,60 @@ namespace STS\UploadServer\Storage;
 use Illuminate\Contracts\Filesystem\Filesystem;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class File extends UploadedFile
 {
+    /** @var string */
     protected $id;
 
-    protected $path;
+    /** @var string */
+    protected $relativePath;
 
     public function __construct($id, $path, $name = null)
     {
         $this->id = $id;
-        $this->path = $path;
-
-        $fullPath = file_exists($path) ? $path : $this->relativeToFullPath($path);
+        $prefix = $this->disk()->getAdapter()->getPathPrefix();
+        $this->relativePath = ltrim(str_replace($prefix,'',$path), '\\/');
 
         parent::__construct(
-            $fullPath,
+            Str::start($path, $prefix . "/"),
             $name ?: basename($path),
             null, 0, true
         );
     }
 
-    public function id()
+    public function id(): string
     {
         return $this->id;
     }
 
+    public function getRelativePath()
+    {
+        return $this->relativePath;
+    }
+
     public static function exists($id): bool
     {
-        return count(static::disk()->files(static::basePath($id))) == 1;
+        return count(static::disk()->files(static::relativePathFor($id))) == 1;
     }
 
     public static function find($id): File
     {
         return new static($id,
-            Arr::first(static::disk()->files(static::basePath($id)))
+            Arr::first(static::disk()->files(static::relativePathFor($id)))
         );
     }
 
-    public static function fromPath($path)
+    public static function all(): Collection
+    {
+        return collect(static::disk()->files(static::basePath()))
+            ->map(fn($path) => static::fromPath($path));
+    }
+
+    public static function fromPath($path): File
     {
         return new static(0, $path);
     }
@@ -53,12 +66,17 @@ class File extends UploadedFile
     public static function storeUploadedFile(UploadedFile $file)
     {
         $file->storeAs(
-            static::basePath($id = static::newId()),
+            static::relativePathFor($id = static::newId()),
             $file->getClientOriginalName(),
             static::diskName()
         );
 
-        return new static($id, static::basePath($id) . "/" . $file->getClientOriginalName());
+        return new static($id, static::relativePathFor($id) . "/" . $file->getClientOriginalName());
+    }
+
+    public function delete(): bool
+    {
+        return $this->disk()->delete($this->relativePath);
     }
 
     public static function diskName(): string
@@ -71,9 +89,14 @@ class File extends UploadedFile
         return Storage::disk(static::diskName());
     }
 
-    public static function basePath($fileId = null): string
+    public static function basePath(): string
     {
-        return rtrim(config('upload-server.path') . "/" . $fileId, '/');
+        return config('upload-server.path');
+    }
+
+    public static function relativePathFor($fileId): string
+    {
+        return rtrim(static::basePath() . "/" . $fileId, '/');
     }
 
     public static function relativeToFullPath($relativePath): string
@@ -84,7 +107,7 @@ class File extends UploadedFile
     public static function fullPathFor($fileId): string
     {
         return static::relativeToFullPath(
-            Arr::first(static::disk()->files(static::basePath($fileId)))
+            Arr::first(static::disk()->files(static::relativePathFor($fileId)))
         );
     }
 

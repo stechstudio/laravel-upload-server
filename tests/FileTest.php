@@ -28,8 +28,8 @@ class FileTest extends TestCase
 
     public function test_it_can_create_from_disk()
     {
-        $path = sys_get_temp_dir() . "/" . md5(time()) . ".txt";
-        file_put_contents($path, "My way's not very sportsman-like");
+        $path = File::basePath() . "/" . md5(time()) . ".txt";
+        File::disk()->put($path, "My way's not very sportsman-like");
 
         $file = File::fromPath($path);
 
@@ -43,8 +43,8 @@ class FileTest extends TestCase
 
         $file = PartialFile::find($id);
 
-        $path = sys_get_temp_dir() . "/" . md5(time()) . ".txt";
-        file_put_contents($path, "It's very important.");
+        $path = File::basePath() . "/" . md5(time()) . ".txt";
+        File::disk()->put($path, "It's very important.");
 
         $incoming = File::fromPath($path);
 
