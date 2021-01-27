@@ -4,6 +4,7 @@ namespace STS\UploadServer\Tests;
 
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Str;
+use STS\UploadServer\Exceptions\InvalidChunkException;
 use STS\UploadServer\Exceptions\InvalidUploadException;
 use STS\UploadServer\Storage\File;
 use STS\UploadServer\Storage\PartialFile;
@@ -105,7 +106,7 @@ class FilePondHttpTest extends TestCase
     {
         [$fileId, $offset] = $payload;
 
-        $this->expectException(InvalidUploadException::class);
+        $this->expectException(InvalidChunkException::class);
 
         // Send a chunk
         $response = $this->withoutExceptionHandling()->patch($this->route, ['patch' => $fileId], [

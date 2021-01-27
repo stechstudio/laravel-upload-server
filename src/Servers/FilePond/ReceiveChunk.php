@@ -5,6 +5,7 @@ namespace STS\UploadServer\Servers\FilePond;
 use Illuminate\Http\Request;
 use STS\UploadServer\Events\ChunkReceived;
 use STS\UploadServer\Events\UploadComplete;
+use STS\UploadServer\Exceptions\InvalidChunkException;
 use STS\UploadServer\Servers\AbstractStep;
 use STS\UploadServer\Storage\PartialFile;
 
@@ -18,13 +19,16 @@ class ReceiveChunk extends AbstractStep
     {
         return $request->method() == "PATCH"
             && $request->hasHeader('Upload-Offset')
-            && $request->has('patch')
-            && PartialFile::exists($request->input('patch'))
-            && PartialFile::find($request->input('patch'))->getSize() == $request->header('Upload-Offset');
+            && $request->has('patch');
     }
 
     public function handle()
     {
+        if(!PartialFile::exists($this->patch()) || PartialFile::find($this->patch())->getSize() != $this->offset()) {
+            // We have a bad chunk request
+            throw new InvalidChunkException;
+        }
+
         $this->file = PartialFile::find($this->patch())
             ->appendContent($this->request->getContent());
     }
